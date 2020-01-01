@@ -7,7 +7,7 @@ import com.tictactoe.app.repository.MoveTableRepository;
 import com.tictactoe.app.responses.CreateGameResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -45,7 +45,7 @@ public class GameController {
 
         if (gameDataOptional.isPresent()) {
             GameTable gameData = gameDataOptional.get();
-            gameData.setGame_id(game_id);
+            gameData.setGameId(game_id);
             gameData.setWinner(winner);
             gameData.setStatus(status);
             gameTableRepository.save(gameData);
@@ -59,18 +59,32 @@ public class GameController {
     }
 
 
+    @Transactional
     @RequestMapping(value = "/create-game")
     public @ResponseBody
     CreateGameResponse createGame() {
-
         Random rand = new Random();
 
-        int user_id = rand.nextInt(1000);
-//        int game_id = rand.nextInt(1000);
-        GameTable m = new GameTable();
-//        m.setGame_id(game_id);
-        m.setUser_id(user_id);
-        GameTable insertedGame =  gameTableRepository.save(m);
-        return new CreateGameResponse(insertedGame.getGame_id(), insertedGame.getUser_id());
+        int userId = rand.nextInt(1000);
+
+        int updateCount = gameTableRepository.pairUser(userId);
+
+        if (updateCount == 0) { //first player
+            GameTable m = new GameTable();
+            m.setFirstPlayer(userId);
+            m.setStatus("Waiting");
+            GameTable insertedGame = gameTableRepository.save(m);
+            return new CreateGameResponse(insertedGame.getGameId(), insertedGame.getFirstPlayer());
+        }else{ //second player
+           GameTable pairedGame =  gameTableRepository.findGameTableBySecondPlayer(userId);
+            return new CreateGameResponse(pairedGame.getGameId(), pairedGame.getSecondPlayer());
+
+        }
+
+       // int game_id = rand.nextInt(1000);
+
+        }
+
     }
-}
+
+

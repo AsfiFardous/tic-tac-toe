@@ -159,6 +159,7 @@ class Page extends React.Component {
         //     page: 2,
         // });
 
+
         let createGamePromise = fetch("/create-game");
         createGamePromise.then((response) => response.json())
             .then(jsonResponse => {
@@ -168,13 +169,7 @@ class Page extends React.Component {
                     game_id: jsonResponse.gameId,
                     user_id: jsonResponse.userId
                 });
-                // if (response.status === 200) {
-                //     this.setState({
-                //         page: 2,
-                //     });
-                // }else{
-                //     alert('Cloud not start game');
-                // }
+               
 
             })
             .catch(function (error) {

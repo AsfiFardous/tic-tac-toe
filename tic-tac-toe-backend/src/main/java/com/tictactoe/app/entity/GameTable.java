@@ -10,25 +10,34 @@ public class GameTable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Integer game_id;
-    private Integer user_id;
+    private Integer gameId;
+    private Integer firstPlayer;
+    private Integer secondPlayer;
     private String winner;
     private String status;
 
-    public Integer getUser_id() {
-        return user_id;
+    public Integer getGameId() {
+        return gameId;
     }
 
-    public void setUser_id(Integer user_id) {
-        this.user_id = user_id;
+    public void setGameId(Integer gameId) {
+        this.gameId = gameId;
     }
 
-    public Integer getGame_id() {
-        return game_id;
+    public Integer getFirstPlayer() {
+        return firstPlayer;
     }
 
-    public void setGame_id(Integer game_id) {
-        this.game_id = game_id;
+    public void setFirstPlayer(Integer firstPlayer) {
+        this.firstPlayer = firstPlayer;
+    }
+
+    public Integer getSecondPlayer() {
+        return secondPlayer;
+    }
+
+    public void setSecondPlayer(Integer secondPlayer) {
+        this.secondPlayer = secondPlayer;
     }
 
     public String getWinner() {
