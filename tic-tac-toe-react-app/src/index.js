@@ -10,12 +10,6 @@ import Row from 'react-bootstrap/Row';
 import { bool } from 'prop-types';
 
 
-// function fname(param) {
-//     return param+1;
-// }
-
-// fname = (param) =>  param+1;
-
 
 class Square extends React.Component {
 
@@ -31,42 +25,62 @@ class Board extends React.Component {
         super(props);
         this.state = {
             squares: Array(9).fill(null),
-            xIsNext: true,
-            isFinished : false,
+            
+            next: this.props.next,
+            nextValue: 'X',
+            player1: this.props.player1,
+            player2: this.props.player2,
+            // getNext: null,
+            // setNext: null,
+            isFinished: false
         };
+        if (props.user_id === props.player2) {
+            this.waitForNextPlayer();
+        }
     }
 
     handleClick(i) {
-
         const squares = this.state.squares.slice();
-        if (squares[i] || this.state.isFinished) {
+        if (this.props.user_id !== this.state.next || squares[i] || this.state.isFinished) {
             return;
         }
-        this.setState({
-            squares: squares,
-            xIsNext: !this.state.xIsNext,
-        });
-        squares[i] = this.state.xIsNext ? 'X' : '0';
+        squares[i] = this.state.nextValue;
+
+        if (this.state.next == this.state.player1) {
+            this.setState({
+                squares: squares,
+                next: this.state.player2,
+                nextValue: 'O',
+                
+            });
+        }
+        else {
+            this.setState({
+                squares: squares,
+                next: this.state.player1,
+                nextValue: 'X',
+                
+            });
+        }
+
+
 
         let winner = calculateWinner(squares);
-        let draw =  isDraw(squares);
-        
-        if(winner || draw){
-            let gamestate = draw ? 'Draw': 'Finished';
+        let draw = isDraw(squares);
+
+        if (winner || draw) {
+            let gamestate = draw ? 'Draw' : 'Finished';
             let addUpdatePromise = fetch("/game-status", {
-                method: 'post' ,
+                method: 'post',
                 headers: {
                     "Content-type": "application/x-www-form-urlencoded; charset=UTF-8"
                 },
-                body: 'game_id='+ this.props.game_id +'&winner=' + winner + '&status=' + gamestate
+                body: 'game_id=' + this.props.game_id + '&winner=' + winner + '&status=' + gamestate
             })
             this.setState({
                 isFinished: true
             });
         }
-
-        
-
 
 
         let addPromise = fetch("/add", {
@@ -74,10 +88,10 @@ class Board extends React.Component {
             headers: {
                 "Content-type": "application/x-www-form-urlencoded; charset=UTF-8"
             },
-            body: 'cur_state=' + squares[i] + '&position=' + i + '&game_id=' + this.props.game_id + '&user_id=' + this.props.user_id 
-                  
+            body: 'cur_state=' + squares[i] + '&position=' + i + '&game_id=' + this.props.game_id + '&user_id=' + this.props.user_id
+
         });
-    
+
         addPromise.then((response) => {
             console.log(response);
         })
@@ -85,12 +99,68 @@ class Board extends React.Component {
                 console.log(error);
             });
 
+        let sendCurrentMove = fetch("/saveLastValue", {
+            method: 'post',
+            headers: {
+                "Content-type": "application/x-www-form-urlencoded; charset=UTF-8"
+            },
+            body: 'game_id=' + this.props.game_id + '&next=' + this.props.user_id + '&lastValue=' + squares[i] + '&lastPosition=' + i
+
+        });
+        sendCurrentMove.then((response) => {
+            console.log(response);
+        })
+            .catch(function (error) {
+                console.log(error);
+            });
+
+        this.waitForNextPlayer();
+
+
     }
 
+    waitForNextPlayer() {
+        let repeatRequest = setInterval(() => {
+            let whoNextPromise = fetch("/whoNext?game_id=" + this.props.game_id);
+            whoNextPromise.then((response) => response.json())
+                .then(jsonResponse => {
+                    console.log(jsonResponse);
+                    if (jsonResponse.next == this.props.user_id) {
+                        clearInterval(repeatRequest);
+                        const squares = this.state.squares.slice();
+                        squares[jsonResponse.position] = jsonResponse.lastValue;
+                        if (jsonResponse.lastValue == 'X') {
+                            this.setState({
+                                squares: squares,
+                                next: jsonResponse.next,
+                                nextValue: 'O',
+                                
+
+                            
+                                
+                            });
+                        }
+                        else {
+                            this.setState({
+                                squares: squares,
+                                next: jsonResponse.next,
+                                nextValue: 'X',
+                                
+                            });
+                        }
+                    }
+                })
+                .catch(function (error) {
+                    // alert('Cloud not start game');
+                    console.log(error);
+                });
+        }, 2000);
+    }
 
     renderSquare(i) {
         return <Square
-            value={this.state.squares[i]}
+            value={this.state.squares[i]
+            }
             onClick={() => this.handleClick(i)}
         />;
     }
@@ -101,11 +171,13 @@ class Board extends React.Component {
         if (winner) {
             status = 'Winner: ' + winner;
         }
-        else if(isDraw(this.state.squares)){
-            status = 'Draw'; 
+        else if (isDraw(this.state.squares)) {
+            status = 'Draw';
         }
         else {
-            status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O');
+            status = 'Next player: ' + (this.state.next);
+            
+           
         }
 
         return (
@@ -116,7 +188,7 @@ class Board extends React.Component {
                     {this.renderSquare(1)}
                     {this.renderSquare(2)}
                 </div>
-                <div className="board-\row">
+                <div className="board-row">
                     {this.renderSquare(3)}
                     {this.renderSquare(4)}
                     {this.renderSquare(5)}
@@ -128,14 +200,14 @@ class Board extends React.Component {
                 </div>
             </div>
         );
-    }
+    };
 }
 class Game extends React.Component {
     render() {
         return (
             <div className="game">
                 <div className="game-board">
-                    <Board game_id={this.props.game_id} user_id={this.props.user_id}/>
+                    <Board game_id={this.props.game_id} user_id={this.props.user_id} next={this.props.next} player1={this.props.player1} player2={this.props.player2} />
                 </div>
             </div>
         );
@@ -149,33 +221,68 @@ class Page extends React.Component {
         this.state = {
             page: 1,
             user_id: null,
-            game_id: null
+            game_id: null,
+            value: null,
+            next: null
         };
     }
 
-    handleClick() {
-        // console.log("Let's play");
-        // this.setState({
-        //     page: 2,
-        // });
+    waitForGaneStart(gameId) {
+        let repeatedRequest = setInterval(() => {
+            let creatIsStartProimse = fetch("/start-response?game_id=" + gameId);
+            creatIsStartProimse.then((response) => response.json())
+                .then(jsonResponse => {
+                    console.log(jsonResponse);
+                    if (jsonResponse.status == 'Started') {
+                        clearInterval(repeatedRequest);
+                        this.setState({
+                            page: 2,
+                            game_id: jsonResponse.gameId,
+                            user_id: jsonResponse.userId,
+                            next: jsonResponse.userId,
+                            player1: jsonResponse.userId
 
+                        });
+                    }
+                })
+                .catch(function (error) {
+                    // alert('Cloud not start game');
+                    console.log(error);
+                });
+        }, 2000);
+
+    }
+
+    handleClick() {
 
         let createGamePromise = fetch("/create-game");
         createGamePromise.then((response) => response.json())
             .then(jsonResponse => {
                 console.log(jsonResponse);
-                this.setState({
-                    page: 2,
-                    game_id: jsonResponse.gameId,
-                    user_id: jsonResponse.userId
-                });
-               
+                if (jsonResponse.status != 'Started') {
+                    this.setState({
+                        page: 3,
+                        game_id: jsonResponse.gameId,
+                        user_id: jsonResponse.userId,
 
+
+                    });
+                    this.waitForGaneStart(jsonResponse.gameId);
+                }
+                else {
+                    this.setState({
+                        page: 2,
+                        game_id: jsonResponse.gameId,
+                        user_id: jsonResponse.userId,
+                        player2: jsonResponse.userId
+                    });
+                }
             })
             .catch(function (error) {
                 alert('Cloud not start game');
                 console.log(error);
             });
+
     }
 
     render() {
@@ -200,7 +307,7 @@ class Page extends React.Component {
                     <div className="play">
                         <Row>
                             <Col md={{ span: 4, offset: 4 }}>
-                                <Game game_id={this.state.game_id} user_id={this.state.user_id}/>
+                                <Game game_id={this.state.game_id} user_id={this.state.user_id} next={this.state.next} player1={this.state.player1} player2={this.state.player2} />
                             </Col>
                         </Row>
                     </div>
@@ -208,6 +315,17 @@ class Page extends React.Component {
                 </Container>
 
             );
+        }
+        else if (this.state.page === 3) {
+            return (
+                <container>
+                    <div className="play">
+                        <Col md={{ span: 4, offset: 4 }}>
+                            <p>Waiting for second player</p>
+                        </Col>
+                    </div>
+                </container>
+            )
         }
     }
 }
@@ -237,9 +355,9 @@ function calculateWinner(squares) {
     return null;
 }
 
-function isDraw(squares){
-    for(let i=0;i<squares.length;i++){
-        if(squares[i]== null){
+function isDraw(squares) {
+    for (let i = 0; i < squares.length; i++) {
+        if (squares[i] == null) {
             return false;
         }
     }

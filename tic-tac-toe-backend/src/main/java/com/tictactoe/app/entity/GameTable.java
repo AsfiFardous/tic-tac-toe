@@ -15,6 +15,10 @@ public class GameTable {
     private Integer secondPlayer;
     private String winner;
     private String status;
+    private Integer next;
+    private String lastValue;
+    private Integer lastPosition;
+
 
     public Integer getGameId() {
         return gameId;
@@ -55,5 +59,38 @@ public class GameTable {
     public void setStatus(String status) {
         this.status = status;
     }
+
+    public String getLastValue() {
+        return lastValue;
+    }
+
+    public void setLastValue(String lastValue) {
+        this.lastValue = lastValue;
+    }
+    public Integer getNext() {
+        return next;
+    }
+
+    public void setNext(Integer next) {
+        this.next = next;
+    }
+
+    public Integer getLastPosition() {
+        return lastPosition;
+    }
+
+    public void setLastPosition(Integer lastPosition) {
+        this.lastPosition = lastPosition;
+    }
+
+    //    public String getSecondValue() {
+//        return secondValue;
+//    }
+//
+//    public void setSecondValue(String secondValue) {
+//        this.secondValue = secondValue;
+//    }
+
+
 }
 
