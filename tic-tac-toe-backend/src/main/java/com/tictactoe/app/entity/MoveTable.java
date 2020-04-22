@@ -11,7 +11,6 @@ public class MoveTable {
     @Id
     @GeneratedValue(strategy=GenerationType.AUTO)
     private Integer move_id;
-
     private Integer user_id;
     private Integer game_id;
     private String cur_state;

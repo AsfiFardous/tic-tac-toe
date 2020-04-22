@@ -1,42 +1,43 @@
 package com.tictactoe.app.responses;
 
-public class CreateGameResponse {
-    private int gameId,userId;
-    private String username,status;
+public class StartGameResponse {
+    private Integer gameId, firstPlayer, secondPlayer;
+    private String status;
+
     private String username1;
     private String username2;
 
-    public CreateGameResponse(int gameId, int userId, String username, String status, String username1, String username2) {
+    public StartGameResponse(Integer gameId, Integer firstPlayer, Integer secondPlayer, String status, String username1, String username2) {
         this.gameId = gameId;
-        this.userId = userId;
-        this.username = username;
+        this.firstPlayer = firstPlayer;
+        this.secondPlayer = secondPlayer;
         this.status = status;
         this.username1 = username1;
         this.username2 = username2;
     }
 
-    public int getGameId() {
+    public Integer getGameId() {
         return gameId;
     }
 
-    public void setGameId(int gameId) {
+    public void setGameId(Integer gameId) {
         this.gameId = gameId;
     }
 
-    public int getUserId() {
-        return userId;
+    public Integer getFirstPlayer() {
+        return firstPlayer;
     }
 
-    public void setUserId(int userId) {
-        this.userId = userId;
+    public void setFirstPlayer(Integer firstPlayer) {
+        this.firstPlayer = firstPlayer;
     }
 
-    public String getUsername() {
-        return username;
+    public Integer getSecondPlayer() {
+        return secondPlayer;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setSecondPlayer(Integer secondPlayer) {
+        this.secondPlayer = secondPlayer;
     }
 
     public String getStatus() {
@@ -63,3 +64,4 @@ public class CreateGameResponse {
         this.username2 = username2;
     }
 }
+

@@ -3,11 +3,14 @@ package com.tictactoe.app.responses;
 public class SendNext {
     private Integer next,position;
     private String lastValue;
+    private String status;
 
-    public SendNext(Integer next,String lastValue, Integer position) {
+
+    public SendNext(Integer next,String lastValue, Integer position, String status) {
         this.next = next;
         this.lastValue = lastValue;
         this.position = position;
+        this.status = status;
     }
 
     public Integer getNext() {
@@ -32,5 +35,13 @@ public class SendNext {
 
     public void setPosition(Integer position) {
         this.position = position;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 }
