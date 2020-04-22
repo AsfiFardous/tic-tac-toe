@@ -17,7 +17,7 @@ public interface GameTableRepository extends CrudRepository<GameTable, Integer> 
 
     GameTable findGameTableBySecondPlayer(int user_id2);
     @Modifying
-    @Query("update GameTable u set u.secondPlayer =:user_id, u.secondUsername =:username, u.status='Started' where u.status = 'WaitingForFriend'")
-    int pairFriend(@Param("user_id") int user_id,@Param("username") String username);
+    @Query("update GameTable u set u.secondPlayer =:user_id, u.secondUsername =:username, u.status='Started' where u.status = 'WaitingForFriend' and u.gameId=:game_id")
+    int pairFriend(@Param("user_id") int user_id,@Param("username") String username, @Param("game_id") int game_id);
 
 }

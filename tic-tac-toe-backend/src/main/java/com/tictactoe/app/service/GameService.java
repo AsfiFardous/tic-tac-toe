@@ -75,7 +75,7 @@ public class GameService {
         if (whoNext.isPresent()) {
             return new SendNext(whoNext.get().getNext(),
                     whoNext.get().getLastValue(),
-                    whoNext.get().getLastPosition(),whoNext.get().getStatus());
+                    whoNext.get().getLastPosition(), whoNext.get().getStatus());
         } else {
             return null;
         }
@@ -117,11 +117,10 @@ public class GameService {
     }
 
     @Transactional
-    public CreateGameResponse playGameWithFriend(String username) {
-        Random rand = new Random();
-        int userId = rand.nextInt(1000);
-        int updateCount = gameTableRepository.pairFriend(userId, username);
-        if (updateCount == 0) {
+    public CreateGameResponse playGameWithFriend(String username, Integer gameId) {
+        if (gameId == -1) {
+            Random rand = new Random();
+            int userId = rand.nextInt(1000);
             GameTable m = new GameTable();
             m.setFirstPlayer(userId);
             m.setStatus("WaitingForFriend");
@@ -131,12 +130,43 @@ public class GameService {
             return new CreateGameResponse(insertedGame.getGameId(), insertedGame.getFirstPlayer(), insertedGame.getFirstUsername(), insertedGame.getStatus(), insertedGame.getFirstUsername(), insertedGame.getSecondUsername());
         }
         else { //second player
+            Random rand = new Random();
+            int userId = rand.nextInt(1000);
+            int updateCount = gameTableRepository.pairFriend(userId, username, gameId);
+            if (updateCount > 0) {
 
-            GameTable pairedGame = gameTableRepository.findGameTableBySecondPlayer(userId);
-            return new CreateGameResponse(pairedGame.getGameId(), pairedGame.getSecondPlayer(), pairedGame.getSecondUsername(), pairedGame.getStatus(), pairedGame.getFirstUsername(), pairedGame.getSecondUsername());
-          }
+                GameTable pairedGame = gameTableRepository.findGameTableBySecondPlayer(userId);
+                return new CreateGameResponse(pairedGame.getGameId(), pairedGame.getSecondPlayer(), pairedGame.getSecondUsername(), pairedGame.getStatus(), pairedGame.getFirstUsername(), pairedGame.getSecondUsername());
+            }
+            else{
+                return null;
+            }
         }
     }
+}
+//    public CreateGameResponse playGameWithFriend(String username,Integer gameId) {
+//        if(gameId == -1) {
+//        }
+//        Random rand = new Random();
+//
+//        int userId = rand.nextInt(1000);
+//        int updateCount = gameTableRepository.pairFriend(userId, username);
+//        if (updateCount == 0) {
+//            GameTable m = new GameTable();
+//            m.setFirstPlayer(userId);
+//            m.setStatus("WaitingForFriend");
+//            m.setNext(userId);
+//            m.setFirstUsername(username);
+//            GameTable insertedGame = gameTableRepository.save(m);
+//            return new CreateGameResponse(insertedGame.getGameId(), insertedGame.getFirstPlayer(), insertedGame.getFirstUsername(), insertedGame.getStatus(), insertedGame.getFirstUsername(), insertedGame.getSecondUsername());
+//        }
+//        else { //second player
+//
+//            GameTable pairedGame = gameTableRepository.findGameTableBySecondPlayer(userId);
+//            return new CreateGameResponse(pairedGame.getGameId(), pairedGame.getSecondPlayer(), pairedGame.getSecondUsername(), pairedGame.getStatus(), pairedGame.getFirstUsername(), pairedGame.getSecondUsername());
+//          }
+//        }
+
 
 
 

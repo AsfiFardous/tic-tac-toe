@@ -290,7 +290,11 @@ class Page extends React.Component {
 
 handleClickFriend() {
     if (this.state.user_name != '') {
-        let createGamePromise = fetch("/play-game-with-friend?username=" + this.state.user_name);
+        let value = this.state.game_id;
+        if(!this.state.game_id){
+            value=-1;
+        }
+        let createGamePromise = fetch("/play-game-with-friend?username=" + this.state.user_name + "&gameId=" + value);
 
         createGamePromise.then((response) => response.json())
             .then(jsonResponse => {

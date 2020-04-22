@@ -108,8 +108,8 @@ public class GameController {
 
     @RequestMapping(value = "/play-game-with-friend")
     public @ResponseBody
-    CreateGameResponse playGameWithFriend(@RequestParam String username) {
-        CreateGameResponse playGameResponse = gameService.playGameWithFriend(username);
+    CreateGameResponse playGameWithFriend(@RequestParam String username,@RequestParam Integer gameId) {
+        CreateGameResponse playGameResponse = gameService.playGameWithFriend(username,gameId);
         if  (playGameResponse != null) {
             return playGameResponse;
         } else {
