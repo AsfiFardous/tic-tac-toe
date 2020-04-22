@@ -299,7 +299,7 @@ handleClickFriend() {
         createGamePromise.then((response) => response.json())
             .then(jsonResponse => {
                 console.log(jsonResponse);
-                if (jsonResponse.status != 'Started'){
+                if (jsonResponse.status === 'WaitingForFriend'){
                     this.setState({
                         page: 4,
                         game_id: jsonResponse.gameId,
@@ -310,7 +310,9 @@ handleClickFriend() {
                     });
                     this.waitForGaneStart(jsonResponse.gameId);
                 }
-                else{
+                
+                else if(jsonResponse.status === 'Started')
+                    {
                     this.setState({
                     page: 2,
                     game_id: jsonResponse.gameId,
@@ -322,6 +324,9 @@ handleClickFriend() {
                     user_name2: jsonResponse.username2,
                     player2: jsonResponse.userId,
                 });
+            }
+            else{
+                alert('Game not found');
             }
         })
         .catch(function (error) {
