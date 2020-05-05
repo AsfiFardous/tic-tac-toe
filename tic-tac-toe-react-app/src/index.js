@@ -241,13 +241,14 @@ class Game extends React.Component {
 class Page extends React.Component {
     constructor(props) {
         super(props);
+        const urlParams = new URLSearchParams(window.location.search);
         this.state = {
             page: 1,
             user_id: null,
             user_name: null,
             user_name1: null,
             user_name2: null,
-            game_id: '',
+            game_id: urlParams.get('gameid') || '',
             value: null,
             player1: null,
             player2: null,
@@ -397,15 +398,14 @@ handleClickFriend() {
                                 </Badge>{' '}</h1>
                                 <Image src="/tic_tac_toe.gif" rounded />
                                 <br />
+                                <br />
 
                                 <label htmlFor="formGroupExampleInput">Username</label>
+                                <br />
                                 <input type="text" value={this.state.user_name}
                                     onChange={this.handleChange.bind(this)} />
                                 <br />
-                                <label htmlFor="formGroupExampleInput">Game Id</label>
-                                <input type="number" value={this.state.game_id}
-                                    onChange={this.handleGameIdChange.bind(this)} />
-                                <br />
+                               
                                 <Button variant="primary" style={{ marginTop: '1em'}} size="lg" onClick={this.handleClickAnonymous.bind(this)}>Play with anonymous</Button>
                                 <Button variant="primary"  style={{ marginTop: '1em'}}  size="lg" onClick={this.handleClickFriend.bind(this)}>Play with friend</Button>
                             </Col>
@@ -444,11 +444,12 @@ handleClickFriend() {
         }
 
         else if (this.state.page === 4) {
+            let shareLink = window.location.href + '?gameid='+this.state.game_id;
             return (
                 <container>
                     <div className="play">
                         <Col md={{ span: 4, offset: 4 }}>
-                            {'Game Id: ' + (this.state.game_id)}
+                           <h1 style={{ color: 'blue' }}>{'Share this link: ' + shareLink}</h1>
                         </Col>
                     </div>
                 </container>
