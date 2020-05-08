@@ -188,7 +188,7 @@ class Board extends React.Component {
             status = <div className="status">Winner:  <span style={{ color: 'blue' }} >{this.state.user_name2}</span></div>
         }
         else if (isDraw(this.state.squares)) {
-            status = 'Draw';
+            status = <div className="status" style={{ color: 'blue' }}>Draw</div>
         }
         else {
             if (this.state.nextValue == 'X') {
@@ -222,6 +222,8 @@ class Board extends React.Component {
                         </tr>
                     </tbody>
                 </table>
+
+               {(this.state.isFinished) && <Button href={window.location.href} variant="primary" style={{ width: '210px', marginTop: '1em'  }} size="lg">Play Again</Button> } 
             </div>
         );
     };
