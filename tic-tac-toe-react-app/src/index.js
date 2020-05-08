@@ -12,7 +12,7 @@ import Image from 'react-bootstrap/Image';
 import Badge from 'react-bootstrap/Badge';
 import InputGroup from 'react-bootstrap/InputGroup'
 import Form from 'react-bootstrap/Form'
-
+import FormControl from 'react-bootstrap/FormControl'
 
 class Square extends React.Component {
 
@@ -72,49 +72,49 @@ class Board extends React.Component {
         let draw = isDraw(squares);
 
         if (winner || draw) {
-            let gamestate = winner ?  'Finished':'Draw';
+            let gamestate = winner ? 'Finished' : 'Draw';
             let addUpdatePromise = fetch("/game-status", {
                 method: 'post',
                 headers: {
                     "Content-type": "application/x-www-form-urlencoded; charset=UTF-8"
                 },
                 body: 'game_id=' + this.props.game_id + '&winner=' + winner + '&status='
-                       + gamestate +'&cur_state=' + squares[i] + '&position=' + i + '&user_id=' + this.props.user_id
-                        + '&next=' + this.props.user_name 
+                    + gamestate + '&cur_state=' + squares[i] + '&position=' + i + '&user_id=' + this.props.user_id
+                    + '&next=' + this.props.user_name
             })
             this.setState({
                 isFinished: true
             });
             addUpdatePromise.then((response) => {
-            console.log(response);
-             })
-            .catch(function (error) {
-                console.log(error);
-            });
-          
+                console.log(response);
+            })
+                .catch(function (error) {
+                    console.log(error);
+                });
+
         }
 
-        else{
+        else {
             let addPromise = fetch("/add", {
-                        method: 'post',
-                        headers: {
-                            "Content-type": "application/x-www-form-urlencoded; charset=UTF-8"
-                        },
-                        body: 'cur_state=' + squares[i] + '&position=' + i + '&game_id=' + this.props.game_id + '&user_id=' + this.props.user_id +'&next=' + this.props.user_name
-            
-                    });
-            
-                    addPromise.then((response) => {
-                        console.log(response);
-                    })
-                        .catch(function (error) {
-                            console.log(error);
-                        });
-            
-                    this.waitForNextPlayer();
-        }   
+                method: 'post',
+                headers: {
+                    "Content-type": "application/x-www-form-urlencoded; charset=UTF-8"
+                },
+                body: 'cur_state=' + squares[i] + '&position=' + i + '&game_id=' + this.props.game_id + '&user_id=' + this.props.user_id + '&next=' + this.props.user_name
+
+            });
+
+            addPromise.then((response) => {
+                console.log(response);
+            })
+                .catch(function (error) {
+                    console.log(error);
+                });
+
+            this.waitForNextPlayer();
+        }
     }
-   
+
 
     waitForNextPlayer() {
         let repeatRequest = setInterval(() => {
@@ -125,7 +125,7 @@ class Board extends React.Component {
                     // if(this.state.isFinished){
                     //     clearInterval(repeatRequest);
                     // }
-                    if(jsonResponse.status === 'Finished' || jsonResponse.status === 'Draw' ){
+                    if (jsonResponse.status === 'Finished' || jsonResponse.status === 'Draw') {
                         clearInterval(repeatRequest);
                         const squares = this.state.squares.slice();
                         squares[jsonResponse.position] = jsonResponse.lastValue;
@@ -133,35 +133,35 @@ class Board extends React.Component {
                             squares: squares,
                             isFinished: true
                         });
-                        
+
                     }
                     else {
-                        if ( jsonResponse.next == this.props.user_id ) {
-                        clearInterval(repeatRequest);
-                        const squares = this.state.squares.slice();
-                        squares[jsonResponse.position] = jsonResponse.lastValue;
-                        if (jsonResponse.lastValue == 'X') {
-                            this.setState({
-                                squares: squares,
-                                next: jsonResponse.next,
-                                nextValue: 'O',
+                        if (jsonResponse.next == this.props.user_id) {
+                            clearInterval(repeatRequest);
+                            const squares = this.state.squares.slice();
+                            squares[jsonResponse.position] = jsonResponse.lastValue;
+                            if (jsonResponse.lastValue == 'X') {
+                                this.setState({
+                                    squares: squares,
+                                    next: jsonResponse.next,
+                                    nextValue: 'O',
 
-                            });
+                                });
+                            }
+                            else {
+                                this.setState({
+                                    squares: squares,
+                                    next: jsonResponse.next,
+                                    nextValue: 'X',
+
+                                });
+                            }
                         }
                         else {
-                            this.setState({
-                                squares: squares,
-                                next: jsonResponse.next,
-                                nextValue: 'X',
+                            this.setState({ next: jsonResponse.next });
 
-                            });
                         }
-                      }
-                     else {
-                        this.setState({ next: jsonResponse.next });
-                     
                     }
-                }
                 })
                 .catch(function (error) {
                     // alert('Cloud not start game');
@@ -181,27 +181,28 @@ class Board extends React.Component {
     render() {
         const winner = calculateWinner(this.state.squares);
         let status;
-        if (winner =='X') {
-            status = 'Winner: ' + (this.state.user_name1);
+        if (winner == 'X') {
+            status = <div className="status">Winner:  <span style={{ color: 'blue' }} >{this.state.user_name1}</span></div>
         }
-        else if(winner == 'O'){
-            status = 'Winner: ' + (this.state.user_name2);
+        else if (winner == 'O') {
+            status = <div className="status">Winner:  <span style={{ color: 'blue' }} >{this.state.user_name2}</span></div>
         }
         else if (isDraw(this.state.squares)) {
             status = 'Draw';
         }
         else {
             if (this.state.nextValue == 'X') {
-                status = 'Next player: ' + (this.state.user_name1);
+                status = <div className="status">Next player:  <span style={{ color: 'blue' }} >{this.state.user_name1}</span></div>
             }
             else {
-                status = 'Next player: ' + (this.state.user_name2);
+                status = <div className="status">Next player:  <span style={{ color: 'blue' }} >{this.state.user_name2}</span></div>
             }
         }
 
         return (
             <div>
-                <div className="status">{status}</div>
+                {status}
+                {/* <div className="status">{status}</div> */}
                 <table>
                     <tbody>
                         <tr className="row-separator">
@@ -289,57 +290,59 @@ class Page extends React.Component {
 
 
 
-handleClickFriend() {
-    if (this.state.user_name != '') {
-        let value = this.state.game_id;
-        if(!this.state.game_id){
-            value=-1;
-        }
-        let createGamePromise = fetch("/play-game-with-friend?username=" + this.state.user_name + "&gameId=" + value);
+    handleClickFriend() {
+        if (this.state.user_name != null) {
+            let value = this.state.game_id;
+            if (!this.state.game_id) {
+                value = -1;
+            }
+            let createGamePromise = fetch("/play-game-with-friend?username=" + this.state.user_name + "&gameId=" + value);
 
-        createGamePromise.then((response) => response.json())
-            .then(jsonResponse => {
-                console.log(jsonResponse);
-                if (jsonResponse.status === 'WaitingForFriend'){
-                    this.setState({
-                        page: 4,
-                        game_id: jsonResponse.gameId,
-                        user_id: jsonResponse.userId,
-                        player1: jsonResponse.userId,
-                        user_name1: jsonResponse.username1,
-                        user_name2: jsonResponse.username2
-                    });
-                    this.waitForGaneStart(jsonResponse.gameId);
-                }
-                
-                else if(jsonResponse.status === 'Started')
-                    {
-                    this.setState({
-                    page: 2,
-                    game_id: jsonResponse.gameId,
-                    // player1: jsonResponse.firstPlayer,
-                    user_id: jsonResponse.userId,
-                    //next: jsonResponse.firstPlayer,
-                    //user_name: jsonResponse.secondUsername,
-                    user_name1: jsonResponse.username1,
-                    user_name2: jsonResponse.username2,
-                    player2: jsonResponse.userId,
+            createGamePromise.then((response) => response.json())
+                .then(jsonResponse => {
+                    console.log(jsonResponse);
+                    if (jsonResponse.status === 'WaitingForFriend') {
+                        this.setState({
+                            page: 4,
+                            game_id: jsonResponse.gameId,
+                            user_id: jsonResponse.userId,
+                            player1: jsonResponse.userId,
+                            user_name1: jsonResponse.username1,
+                            user_name2: jsonResponse.username2
+                        });
+                        this.waitForGaneStart(jsonResponse.gameId);
+                    }
+
+                    else if (jsonResponse.status === 'Started') {
+                        this.setState({
+                            page: 2,
+                            game_id: jsonResponse.gameId,
+                            // player1: jsonResponse.firstPlayer,
+                            user_id: jsonResponse.userId,
+                            //next: jsonResponse.firstPlayer,
+                            //user_name: jsonResponse.secondUsername,
+                            user_name1: jsonResponse.username1,
+                            user_name2: jsonResponse.username2,
+                            player2: jsonResponse.userId,
+                        });
+                    }
+                    else {
+                        alert('Game not found');
+                    }
+                })
+                .catch(function (error) {
+                    alert('Cloud not start game');
+                    console.log(error);
                 });
-            }
-            else{
-                alert('Game not found');
-            }
-        })
-        .catch(function (error) {
-            alert('Cloud not start game');
-            console.log(error);
-        });
-}
+        }
+        else {
+            alert('Please enter username');
+        }
 
-}
+    }
 
     handleClickAnonymous() {
-        if (this.state.user_name !== '') {
+        if (this.state.user_name !== null) {
 
             let createGamePromise = fetch("/create-game?username=" + this.state.user_name);
             createGamePromise.then((response) => response.json())
@@ -353,7 +356,6 @@ handleClickFriend() {
                             player1: jsonResponse.userId,
                             user_name1: jsonResponse.username1,
                             user_name2: jsonResponse.username2
-                            //player2: jsonResponse.secondPlayer
                         });
                         this.waitForGaneStart(jsonResponse.gameId);
                     }
@@ -361,10 +363,7 @@ handleClickFriend() {
                         this.setState({
                             page: 2,
                             game_id: jsonResponse.gameId,
-                            // player1: jsonResponse.firstPlayer,
                             user_id: jsonResponse.userId,
-                            //next: jsonResponse.firstPlayer,
-                            //user_name: jsonResponse.secondUsername,
                             user_name1: jsonResponse.username1,
                             user_name2: jsonResponse.username2,
                             player2: jsonResponse.userId,
@@ -376,14 +375,31 @@ handleClickFriend() {
                     console.log(error);
                 });
         }
+        else {
+            alert('Please enter username');
+        }
 
     }
 
     handleChange(event) {
         this.setState({ user_name: event.target.value })
     }
-    handleGameIdChange(event){
+    handleGameIdChange(event) {
         this.setState({ game_id: event.target.value })
+    }
+
+    handleCopyLink(event) {
+        var copyTextarea = document.querySelector('.js-copytextarea');
+        copyTextarea.focus();
+        copyTextarea.select();
+
+        try {
+            var successful = document.execCommand('copy');
+            // var msg = successful ? 'successful' : 'unsuccessful';
+            alert('Copied');
+        } catch (err) {
+            alert('Oops, unable to copy');
+        }
     }
 
     render() {
@@ -392,27 +408,29 @@ handleClickFriend() {
                 <Container>
                     <div className="play">
                         <Row>
-                            <Col md={{ span: 4, offset: 4 }}>
-                                <h1><Badge pill variant="success">
-                                    TIC TAC TOE
-                                </Badge>{' '}</h1>
-                                <Image src="/tic_tac_toe.gif" rounded />
-                                <br />
-                                <br />
-
-                                <label htmlFor="formGroupExampleInput">Username</label>
-                                <br />
-                                <input type="text" value={this.state.user_name}
-                                    onChange={this.handleChange.bind(this)} />
-                                <br />
-                               
-                                <Button variant="primary" style={{ marginTop: '1em'}} size="lg" onClick={this.handleClickAnonymous.bind(this)}>Play with anonymous</Button>
-                                <Button variant="primary"  style={{ marginTop: '1em'}}  size="lg" onClick={this.handleClickFriend.bind(this)}>Play with friend</Button>
+                            <Col md={{ span: 6, offset: 3 }} lg={{ span: 4, offset: 4 }}>
+                                <h1 className="flex-center">
+                                    <Badge pill variant="success">
+                                        TIC TAC TOE
+                                        </Badge>{' '}
+                                </h1>
+                                <div className="flex-center">
+                                    <Image src="/tic_tac_toe.gif" rounded />
+                                </div>
+                                <div className="flex-center">
+                                    <Form.Control style={{ marginTop: '1em' }} size="lg" type="text" placeholder="Your name" value={this.state.user_name} onChange={this.handleChange.bind(this)} />
+                                </div>
+                                <div className="flex-center control-button">
+                                    {!this.state.game_id && <Button variant="primary" style={{ marginTop: '1em' }} size="lg" onClick={this.handleClickAnonymous.bind(this)}>Play with anonymous</Button>}
+                                </div>
+                                <div className="flex-center control-button">
+                                    <Button variant="primary" style={{ width: '210px' }} size="lg" onClick={this.handleClickFriend.bind(this)}>{this.state.game_id ? 'Join Game' : 'Play with friend'}</Button>
+                                </div>
                             </Col>
                         </Row>
                     </div>
 
-                </Container>
+                </Container >
 
             );
         }
@@ -421,8 +439,15 @@ handleClickFriend() {
                 <Container>
                     <div className="play">
                         <Row>
-                            <Col md={{ span: 4, offset: 4 }}>
-                                <Game game_id={this.state.game_id} user_id={this.state.user_id} next={this.state.next} player1={this.state.player1} player2={this.state.player2} user_name1={this.state.user_name1} user_name2={this.state.user_name2} />
+                            <Col md={{ span: 6, offset: 3 }} lg={{ span: 4, offset: 4 }}>
+                                <h1 className="flex-center">
+                                    <Badge pill variant="success">
+                                        TIC TAC TOE
+                                        </Badge>{' '}
+                                </h1>
+                                <div className="flex-center" style={{ marginTop: '1em' }}>
+                                    <Game game_id={this.state.game_id} user_id={this.state.user_id} next={this.state.next} player1={this.state.player1} player2={this.state.player2} user_name1={this.state.user_name1} user_name2={this.state.user_name2} />
+                                </div>
                             </Col>
                         </Row>
                     </div>
@@ -433,26 +458,63 @@ handleClickFriend() {
         }
         else if (this.state.page === 3) {
             return (
-                <container>
+                <Container>
                     <div className="play">
-                        <Col md={{ span: 4, offset: 4 }}>
-                            <h1 style={{ color: 'blue' }}>Waiting for second player</h1>
+                        <Col md={{ span: 6, offset: 3 }} lg={{ span: 4, offset: 4 }}>
+                            <h1 className="flex-center">
+                                <Badge pill variant="success">
+                                    TIC TAC TOE
+                                        </Badge>{' '}
+                            </h1>
+                            <div className="flex-center">
+                                <Image src="/tic_tac_toe.gif" rounded />
+
+                            </div>
+                            <div className="flex-center">
+                                <h3 style={{ color: 'blue', marginTop: '1em' }}>Waiting for second player</h3>
+                            </div>
+
+
                         </Col>
                     </div>
-                </container>
+                </Container>
             )
         }
 
         else if (this.state.page === 4) {
-            let shareLink = window.location.href + '?gameid='+this.state.game_id;
+            let shareLink = window.location.href + '?gameid=' + this.state.game_id;
             return (
-                <container>
+                <Container>
                     <div className="play">
-                        <Col md={{ span: 4, offset: 4 }}>
-                           <h1 style={{ color: 'blue' }}>{'Share this link: ' + shareLink}</h1>
+                        <Col md={{ span: 6, offset: 3 }} lg={{ span: 4, offset: 4 }}>
+                            <h1 className="flex-center">
+                                <Badge pill variant="success">
+                                    TIC TAC TOE
+                                        </Badge>{' '}
+                            </h1>
+                            <div className="flex-center">
+                                <Image src="/tic_tac_toe.gif" rounded />
+                            </div>
+                            <div className="flex-center">
+                                <h3 style={{ color: 'blue', marginTop: '1em' }}>{'Share this link: '}</h3>
+                            </div>
+                            <div className="flex-center">
+                                <p>
+                                    <InputGroup className="mb-3">
+                                        <FormControl
+                                            value={shareLink}
+                                            className="js-copytextarea"
+                                        />
+                                        <InputGroup.Append>
+                                            <Button variant="outline-secondary" onClick={this.handleCopyLink.bind(this)} >Copy Link</Button>
+                                        </InputGroup.Append>
+                                    </InputGroup>
+                                </p>
+                            </div>
+
                         </Col>
                     </div>
-                </container>
+                </Container>
             )
         }
     }

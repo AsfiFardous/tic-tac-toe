@@ -7,7 +7,7 @@ body {
     padding-left: 30px;
   }
   .play {
-    margin-top: 20em;
+    margin-top: 10em;
   }
   .board-row:after {
     clear: both;
@@ -63,4 +63,15 @@ body {
   .col-separator{
     border-right: 2px solid;
   }
-  
+
+  .flex-center{
+    display: flex;
+    justify-content: center;
+    
+  }
+
+  .control-button{
+    min-width: 200px;
+    margin-top: 10px;
+    margin-bottom: 5px;
+  }
