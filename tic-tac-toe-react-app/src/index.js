@@ -95,21 +95,21 @@ class Board extends React.Component {
         }
 
         else {
-            let addPromise = fetch("/add", {
-                method: 'post',
-                headers: {
-                    "Content-type": "application/x-www-form-urlencoded; charset=UTF-8"
-                },
-                body: 'cur_state=' + squares[i] + '&position=' + i + '&game_id=' + this.props.game_id + '&user_id=' + this.props.user_id + '&next=' + this.props.user_name
+            // let addPromise = fetch("/add", {
+            //     method: 'post',
+            //     headers: {
+            //         "Content-type": "application/x-www-form-urlencoded; charset=UTF-8"
+            //     },
+            //     body: 'cur_state=' + squares[i] + '&position=' + i + '&game_id=' + this.props.game_id + '&user_id=' + this.props.user_id + '&next=' + this.props.user_name
 
-            });
+            // });
 
-            addPromise.then((response) => {
-                console.log(response);
-            })
-                .catch(function (error) {
-                    console.log(error);
-                });
+            // addPromise.then((response) => {
+            //     console.log(response);
+            // })
+            //     .catch(function (error) {
+            //         console.log(error);
+            //     });
 
             this.waitForNextPlayer();
         }
@@ -200,7 +200,7 @@ class Board extends React.Component {
         }
 
         return (
-            <div>
+            <div  className="play">
                 {status}
                 {/* <div className="status">{status}</div> */}
                 <table>
@@ -397,7 +397,7 @@ class Page extends React.Component {
 
         try {
             var successful = document.execCommand('copy');
-            // var msg = successful ? 'successful' : 'unsuccessful';
+            // var msg = successful ? q'successful' : 'unsuccessful';
             alert('Copied');
         } catch (err) {
             alert('Oops, unable to copy');
@@ -408,24 +408,25 @@ class Page extends React.Component {
         if (this.state.page === 1) {
             return (
                 <Container>
-                    <div className="play">
+                    <div >
                         <Row>
-                            <Col md={{ span: 6, offset: 3 }} lg={{ span: 4, offset: 4 }}>
-                                <h1 className="flex-center">
+                        
+                            <Col md={{ span: 6, offset: 3 }} lg={{ span: 4, offset: 4 }} className="flex-center">
+                                <h1>
                                     <Badge pill variant="success">
                                         TIC TAC TOE
                                         </Badge>{' '}
                                 </h1>
-                                <div className="flex-center">
+                                <div>
                                     <Image src="/tic_tac_toe.gif" rounded />
                                 </div>
-                                <div className="flex-center">
+                                <div>
                                     <Form.Control style={{ marginTop: '1em' }} size="lg" type="text" placeholder="Your name" value={this.state.user_name} onChange={this.handleChange.bind(this)} />
                                 </div>
-                                <div className="flex-center control-button">
+                                <div className="control-button">
                                     {!this.state.game_id && <Button variant="primary" style={{ marginTop: '1em' }} size="lg" onClick={this.handleClickAnonymous.bind(this)}>Play with anonymous</Button>}
                                 </div>
-                                <div className="flex-center control-button">
+                                <div className="control-button">
                                     <Button variant="primary" style={{ width: '210px' }} size="lg" onClick={this.handleClickFriend.bind(this)}>{this.state.game_id ? 'Join Game' : 'Play with friend'}</Button>
                                 </div>
                             </Col>
@@ -439,15 +440,15 @@ class Page extends React.Component {
         else if (this.state.page === 2) {
             return (
                 <Container>
-                    <div className="play">
+                    <div >
                         <Row>
-                            <Col md={{ span: 6, offset: 3 }} lg={{ span: 4, offset: 4 }}>
-                                <h1 className="flex-center">
+                            <Col md={{ span: 6, offset: 3 }} lg={{ span: 4, offset: 4 }}  className="flex-center">
+                                <h1>
                                     <Badge pill variant="success">
                                         TIC TAC TOE
                                         </Badge>{' '}
                                 </h1>
-                                <div className="flex-center" style={{ marginTop: '1em' }}>
+                                <div style={{ marginTop: '1em' }}>
                                     <Game game_id={this.state.game_id} user_id={this.state.user_id} next={this.state.next} player1={this.state.player1} player2={this.state.player2} user_name1={this.state.user_name1} user_name2={this.state.user_name2} />
                                 </div>
                             </Col>
@@ -461,22 +462,20 @@ class Page extends React.Component {
         else if (this.state.page === 3) {
             return (
                 <Container>
-                    <div className="play">
-                        <Col md={{ span: 6, offset: 3 }} lg={{ span: 4, offset: 4 }}>
-                            <h1 className="flex-center">
+                    <div >
+                        <Col md={{ span: 6, offset: 3 }} lg={{ span: 4, offset: 4 }} className="flex-center">
+                            <h1>
                                 <Badge pill variant="success">
                                     TIC TAC TOE
                                         </Badge>{' '}
                             </h1>
-                            <div className="flex-center">
+                            <div >
                                 <Image src="/tic_tac_toe.gif" rounded />
 
                             </div>
-                            <div className="flex-center">
+                            <div>
                                 <h3 style={{ color: 'blue', marginTop: '1em' }}>Waiting for second player</h3>
                             </div>
-
-
                         </Col>
                     </div>
                 </Container>
@@ -487,20 +486,20 @@ class Page extends React.Component {
             let shareLink = window.location.href + '?gameid=' + this.state.game_id;
             return (
                 <Container>
-                    <div className="play">
-                        <Col md={{ span: 6, offset: 3 }} lg={{ span: 4, offset: 4 }}>
-                            <h1 className="flex-center">
+                    <div >
+                        <Col md={{ span: 6, offset: 3 }} lg={{ span: 4, offset: 4 }} className="flex-center">
+                            <h1 >
                                 <Badge pill variant="success">
                                     TIC TAC TOE
                                         </Badge>{' '}
                             </h1>
-                            <div className="flex-center">
+                            <div>
                                 <Image src="/tic_tac_toe.gif" rounded />
                             </div>
-                            <div className="flex-center">
+                            <div >
                                 <h3 style={{ color: 'blue', marginTop: '1em' }}>{'Share this link: '}</h3>
                             </div>
-                            <div className="flex-center">
+                            <div >
                                 <p>
                                     <InputGroup className="mb-3">
                                         <FormControl

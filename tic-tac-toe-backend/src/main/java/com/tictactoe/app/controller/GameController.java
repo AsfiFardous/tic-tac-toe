@@ -21,22 +21,22 @@ public class GameController {
     @Autowired
     private GameService gameService;
 
-    @PostMapping(path = "/add")
-        // Map ONLY POST Requests
-        //    public @ResponseBody
-    String addNewGame(@RequestParam Integer game_id
-            , @RequestParam Integer user_id, @RequestParam String cur_state
-            , @RequestParam Integer position) throws IOException {
-        gameService.addNewGame(game_id, user_id, cur_state, position);
-        boolean response = gameService.findNextPlayer(game_id, cur_state, position);
-        if(response== true) {
-            return "Saved";
-        }
-        else{
-            throw new ResponseStatusException(
-                    HttpStatus.NOT_FOUND, "Game Not Found");
-        }
-    }
+//    @PostMapping(path = "/add")
+//        // Map ONLY POST Requests
+//        //    public @ResponseBody
+//    String addNewGame(@RequestParam Integer game_id
+//            , @RequestParam Integer user_id, @RequestParam String cur_state
+//            , @RequestParam Integer position) throws IOException {
+//        gameService.addNewGame(game_id, user_id, cur_state, position);
+//        boolean response = gameService.findNextPlayer(game_id, cur_state, position);
+//        if(response== true) {
+//            return "Saved";
+//        }
+//        else{
+//            throw new ResponseStatusException(
+//                    HttpStatus.NOT_FOUND, "Game Not Found");
+//        }
+//    }
 
 
     @PostMapping(path = "/game-status")
@@ -44,7 +44,7 @@ public class GameController {
             , @RequestParam String status, @RequestParam Integer user_id, @RequestParam String cur_state
             , @RequestParam Integer position ) throws IOException {
         boolean response = gameService.addGameStatus(game_id, winner, status);
-        gameService.addNewGame(game_id, user_id, cur_state, position);
+       // gameService.addNewGame(game_id, user_id, cur_state, position);
         boolean nextPlayerResponse = gameService.findNextPlayer(game_id, cur_state, position);
 
         if (response == true && nextPlayerResponse == true ) {
@@ -54,19 +54,6 @@ public class GameController {
                     HttpStatus.NOT_FOUND, "Game Not Found");
         }
     }
-
-//    @PostMapping(value = "/saveLastValue")
-//    public @ResponseBody
-//    String findNextPlayer(@RequestParam Integer game_id
-//            , @RequestParam String lastValue, @RequestParam Integer lastPosition) throws IOException {
-//        boolean response = gameService.findNextPlayer(game_id, lastValue, lastPosition);
-//        if (response == true) {
-//            return "saved";
-//        } else {
-//            throw new ResponseStatusException(
-//                    HttpStatus.NOT_FOUND, "Game Not Found");
-//        }
-//    }
 
     @RequestMapping(value = "/whoNext")
     public @ResponseBody

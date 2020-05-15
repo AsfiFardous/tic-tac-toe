@@ -6,9 +6,7 @@ body {
   ol, ul {
     padding-left: 30px;
   }
-  .play {
-    margin-top: 10em;
-  }
+  
   .board-row:after {
     clear: both;
     content: "";
@@ -66,7 +64,13 @@ body {
 
   .flex-center{
     display: flex;
+    flex-direction: column;
     justify-content: center;
+    align-items: center;
+    height: 100vh;
+    /* display: flex;
+    
+    justify-content: center; */
     
   }
 
@@ -74,4 +78,10 @@ body {
     min-width: 200px;
     margin-top: 10px;
     margin-bottom: 5px;
+  }
+  .play{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
   }
