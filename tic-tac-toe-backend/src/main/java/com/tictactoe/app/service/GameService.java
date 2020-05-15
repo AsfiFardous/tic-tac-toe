@@ -26,13 +26,13 @@ public class GameService {
     @Autowired
     private GameTableRepository gameTableRepository;
 
-//    public void addNewGame(Integer game_id, Integer user_id, String cur_state, Integer position) {
-//        MoveTable n = new MoveTable();
-//        n.setUser_id(user_id);
-//        n.setCur_state(cur_state);
-//        n.setPosition(position);
-//        moveTableRepository.save(n);
-//    }
+    public void addNewMove(Integer game_id, Integer user_id, String cur_state, Integer position) {
+        MoveTable n = new MoveTable();
+        n.setUser_id(user_id);
+        n.setCur_state(cur_state);
+        n.setPosition(position);
+        moveTableRepository.save(n);
+    }
 
     public boolean addGameStatus(Integer game_id, String winner, String status) {
 

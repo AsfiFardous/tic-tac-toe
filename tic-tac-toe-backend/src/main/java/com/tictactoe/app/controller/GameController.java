@@ -1,19 +1,15 @@
 package com.tictactoe.app.controller;
 
-import com.tictactoe.app.entity.GameTable;
 import com.tictactoe.app.responses.CreateGameResponse;
 import com.tictactoe.app.responses.SendNext;
 import com.tictactoe.app.responses.StartGameResponse;
 import com.tictactoe.app.service.GameService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
-import java.util.Optional;
-import java.util.Random;
 
 @RestController
 public class GameController {
@@ -21,22 +17,22 @@ public class GameController {
     @Autowired
     private GameService gameService;
 
-//    @PostMapping(path = "/add")
-//        // Map ONLY POST Requests
-//        //    public @ResponseBody
-//    String addNewGame(@RequestParam Integer game_id
-//            , @RequestParam Integer user_id, @RequestParam String cur_state
-//            , @RequestParam Integer position) throws IOException {
-//        gameService.addNewGame(game_id, user_id, cur_state, position);
-//        boolean response = gameService.findNextPlayer(game_id, cur_state, position);
-//        if(response== true) {
-//            return "Saved";
-//        }
-//        else{
-//            throw new ResponseStatusException(
-//                    HttpStatus.NOT_FOUND, "Game Not Found");
-//        }
-//    }
+    @PostMapping(path = "/add")
+        // Map ONLY POST Requests
+        //    public @ResponseBody
+    String addNewMove(@RequestParam Integer game_id
+            , @RequestParam Integer user_id, @RequestParam String cur_state
+            , @RequestParam Integer position) throws IOException {
+        gameService.addNewMove(game_id, user_id, cur_state, position);
+        boolean response = gameService.findNextPlayer(game_id, cur_state, position);
+        if(response== true) {
+            return "Saved";
+        }
+        else{
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND, "Game Not Found");
+        }
+    }
 
 
     @PostMapping(path = "/game-status")
