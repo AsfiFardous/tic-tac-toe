@@ -2,11 +2,15 @@ package com.tictactoe.app.service;
 
 import com.tictactoe.app.entity.GameTable;
 import com.tictactoe.app.entity.MoveTable;
+import com.tictactoe.app.entity.PlayAgainTable;
 import com.tictactoe.app.repository.GameTableRepository;
 import com.tictactoe.app.repository.MoveTableRepository;
+import com.tictactoe.app.repository.PlayAgainTableRepository;
 import com.tictactoe.app.responses.CreateGameResponse;
+import com.tictactoe.app.responses.PlayAgainGameResponse;
 import com.tictactoe.app.responses.SendNext;
 import com.tictactoe.app.responses.StartGameResponse;
+import org.apache.catalina.Store;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -25,6 +29,8 @@ public class GameService {
     private MoveTableRepository moveTableRepository;
     @Autowired
     private GameTableRepository gameTableRepository;
+    @Autowired
+    private PlayAgainTableRepository playAgainTableRepository;
 
     public void addNewMove(Integer game_id, Integer user_id, String cur_state, Integer position) {
         MoveTable n = new MoveTable();
@@ -109,10 +115,10 @@ public class GameService {
             m.setNext(userId);
             m.setFirstUsername(username);
             GameTable insertedGame = gameTableRepository.save(m);
-            return new CreateGameResponse(insertedGame.getGameId(), insertedGame.getFirstPlayer(), insertedGame.getFirstUsername(), insertedGame.getStatus(), insertedGame.getFirstUsername(), insertedGame.getSecondUsername());
+            return new CreateGameResponse(insertedGame.getGameId(), insertedGame.getFirstPlayer(), insertedGame.getFirstUsername(), insertedGame.getStatus(), insertedGame.getFirstUsername(),insertedGame.getSecondPlayer(), insertedGame.getSecondUsername());
         } else { //second player
             GameTable pairedGame = gameTableRepository.findGameTableBySecondPlayer(userId);
-            return new CreateGameResponse(pairedGame.getGameId(), pairedGame.getSecondPlayer(), pairedGame.getSecondUsername(), pairedGame.getStatus(), pairedGame.getFirstUsername(), pairedGame.getSecondUsername());
+            return new CreateGameResponse(pairedGame.getGameId(), pairedGame.getSecondPlayer(), pairedGame.getSecondUsername(), pairedGame.getStatus(), pairedGame.getFirstUsername(),pairedGame.getFirstPlayer(), pairedGame.getSecondUsername());
         }
     }
 
@@ -127,47 +133,116 @@ public class GameService {
             m.setNext(userId);
             m.setFirstUsername(username);
             GameTable insertedGame = gameTableRepository.save(m);
-            return new CreateGameResponse(insertedGame.getGameId(), insertedGame.getFirstPlayer(), insertedGame.getFirstUsername(), insertedGame.getStatus(), insertedGame.getFirstUsername(), insertedGame.getSecondUsername());
-        }
-        else { //second player
+            return new CreateGameResponse(insertedGame.getGameId(), insertedGame.getFirstPlayer(), insertedGame.getFirstUsername(), insertedGame.getStatus(), insertedGame.getFirstUsername(),insertedGame.getSecondPlayer(), insertedGame.getSecondUsername());
+        } else { //second player
             Random rand = new Random();
             int userId = rand.nextInt(1000);
             int updateCount = gameTableRepository.pairFriend(userId, username, gameId);
             if (updateCount > 0) {
 
                 GameTable pairedGame = gameTableRepository.findGameTableBySecondPlayer(userId);
-                return new CreateGameResponse(pairedGame.getGameId(), pairedGame.getSecondPlayer(), pairedGame.getSecondUsername(), pairedGame.getStatus(), pairedGame.getFirstUsername(), pairedGame.getSecondUsername());
-            }
-            else{
+                return new CreateGameResponse(pairedGame.getGameId(), pairedGame.getSecondPlayer(), pairedGame.getSecondUsername(), pairedGame.getStatus(), pairedGame.getFirstUsername(),pairedGame.getFirstPlayer(), pairedGame.getSecondUsername());
+            } else {
                 return null;
             }
         }
     }
+
+    public boolean playGameAgain(int gameId, int userId) {
+
+        GameTable gameData = gameTableRepository.findByGameId(gameId);
+        if (gameData != null) {
+            if (gameData.getFirstPlayer() == userId) {
+                PlayAgainTable m = new PlayAgainTable();
+                m.setGameId(gameId);
+                m.setFirstPlayerId(userId);
+                m.setGameStatus("First player wants to play again");
+                playAgainTableRepository.save(m);
+            } else if (gameData.getSecondPlayer() == userId) {
+                PlayAgainTable m = new PlayAgainTable();
+                m.setGameId(gameId);
+                m.setFirstPlayerId(userId);
+                m.setGameStatus("Second player wants to play again");
+                playAgainTableRepository.save(m);
+            }
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public String checkForPlayAgainRequest(Integer gameId, Integer userId) {
+        Optional<PlayAgainTable> isGameIdPresent = playAgainTableRepository.findByGameId(gameId);
+        if (isGameIdPresent.isPresent()) {
+            PlayAgainTable gameData = isGameIdPresent.get();
+            return gameData.getGameStatus();
+        } else {
+            return "No one requested for play again";
+        }
+    }
+
+    public boolean myResponseToPlayAgainRequest(String myResponse, Integer gameId) {
+        Optional<PlayAgainTable> isGameIdPresent = playAgainTableRepository.findByGameId(gameId);
+        if (isGameIdPresent.isPresent()) {
+            PlayAgainTable gameData = isGameIdPresent.get();
+            gameData.setGameStatus("No");
+            playAgainTableRepository.save(gameData);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public String checkResponseToPlayAgainRequest(Integer gameId) {
+        Optional<PlayAgainTable> isGameIdPresent = playAgainTableRepository.findByGameId(gameId);
+        if (isGameIdPresent.isPresent()) {
+            PlayAgainTable gameData = isGameIdPresent.get();
+            return gameData.getGameStatus();
+        } else {
+            return null;
+        }
+    }
+
+
+    @Transactional
+    public PlayAgainGameResponse createGameAgain(Integer gameId, Integer player1, String username1, Integer player2, String username2) {
+        GameTable m = new GameTable();
+        m.setFirstPlayer(player1);
+        m.setSecondPlayer(player2);
+        //m.setStatus("Waiting");
+        m.setNext(player1);
+        m.setFirstUsername(username1);
+        m.setSecondUsername(username2);
+        GameTable insertedGame = gameTableRepository.save(m);
+        playAgainTableRepository.insertGameId(gameId, insertedGame.getGameId());
+        return new PlayAgainGameResponse(insertedGame.getGameId(), insertedGame.getFirstPlayer(), insertedGame.getSecondPlayer(), insertedGame.getNext(), insertedGame.getFirstUsername(), insertedGame.getSecondUsername());
+//        } else { //second player
+//            GameTable pairedGame = gameTableRepository.findGameTableBySecondPlayer(userId);
+//            return new CreateGameResponse(pairedGame.getGameId(), pairedGame.getSecondPlayer(), pairedGame.getSecondUsername(), pairedGame.getStatus(), pairedGame.getFirstUsername(), pairedGame.getSecondUsername());
+//        }
+
+    }
+
+    public PlayAgainGameResponse getNewGameId(Integer gameId, Integer userId) {
+        Optional<PlayAgainTable> isGameIdPresent = playAgainTableRepository.findByGameId(gameId);
+        if (isGameIdPresent.isPresent()) {
+            PlayAgainTable gameData = isGameIdPresent.get();
+            if (gameData.getNewGameId() != null) {
+                GameTable isGamePresent = gameTableRepository.findByGameId(gameData.getNewGameId());
+
+                    return new PlayAgainGameResponse(isGamePresent.getGameId(), isGamePresent.getFirstPlayer(), isGamePresent.getSecondPlayer(), isGamePresent.getNext(), isGamePresent.getFirstUsername(), isGamePresent.getSecondUsername());
+
+            } else {
+                return null;
+            }
+        } else {
+            return null;
+        }
+    }
+
 }
 
 
-//    public CreateGameResponse playGameWithFriend(String username,Integer gameId) {
-//        if(gameId == -1) {
-//        }
-//        Random rand = new Random();
-//
-//        int userId = rand.nextInt(1000);
-//        int updateCount = gameTableRepository.pairFriend(userId, username);
-//        if (updateCount == 0) {
-//            GameTable m = new GameTable();
-//            m.setFirstPlayer(userId);
-//            m.setStatus("WaitingForFriend");
-//            m.setNext(userId);
-//            m.setFirstUsername(username);
-//            GameTable insertedGame = gameTableRepository.save(m);
-//            return new CreateGameResponse(insertedGame.getGameId(), insertedGame.getFirstPlayer(), insertedGame.getFirstUsername(), insertedGame.getStatus(), insertedGame.getFirstUsername(), insertedGame.getSecondUsername());
-//        }
-//        else { //second player
-//
-//            GameTable pairedGame = gameTableRepository.findGameTableBySecondPlayer(userId);
-//            return new CreateGameResponse(pairedGame.getGameId(), pairedGame.getSecondPlayer(), pairedGame.getSecondUsername(), pairedGame.getStatus(), pairedGame.getFirstUsername(), pairedGame.getSecondUsername());
-//          }
-//        }
 
 
 

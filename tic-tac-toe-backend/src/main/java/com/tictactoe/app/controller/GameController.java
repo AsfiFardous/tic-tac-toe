@@ -1,6 +1,7 @@
 package com.tictactoe.app.controller;
 
 import com.tictactoe.app.responses.CreateGameResponse;
+import com.tictactoe.app.responses.PlayAgainGameResponse;
 import com.tictactoe.app.responses.SendNext;
 import com.tictactoe.app.responses.StartGameResponse;
 import com.tictactoe.app.service.GameService;
@@ -100,6 +101,81 @@ public class GameController {
                     HttpStatus.NOT_FOUND, "Game Not Found");
         }
     }
+
+    @PostMapping(value = "/play-again-request")
+    String playGameAgain( @RequestParam Integer gameId,@RequestParam Integer userId) {
+        boolean playAgainResponse = gameService.playGameAgain(gameId, userId);
+        if (playAgainResponse == true) {
+            return "saved";
+        } else {
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND, "Game Not Found");
+        }
+    }
+
+
+    @RequestMapping(value = "/check-for-play-again")
+    public @ResponseBody
+    String checkForPlayAgainRequest(@RequestParam Integer gameId, @RequestParam Integer userId ) {
+        String playGameResponse = gameService.checkForPlayAgainRequest(gameId,userId);
+        if  (playGameResponse != null) {
+            return playGameResponse;
+        } else {
+            return "No request for new game found";
+        }
+    }
+    @PostMapping(value = "/my-response-to-play-again-request")
+    String myResponseToPlayAgainRequest(@RequestParam String myResponse, @RequestParam Integer gameId ) {
+
+        boolean response = gameService.myResponseToPlayAgainRequest(myResponse,gameId);
+        if(response== true) {
+            return "Saved";
+        }
+        else{
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND, "Game Not Found");
+        }
+    }
+
+    @RequestMapping(value = "/check-response-to-play-again-request")
+    public @ResponseBody
+    String checkResponseToPlayAgainRequest(@RequestParam Integer gameId) {
+        String playGameResponse = gameService.checkResponseToPlayAgainRequest(gameId);
+        if  (playGameResponse != null) {
+            return playGameResponse;
+        } else {
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND, "Game Not Found");
+        }
+    }
+
+    @RequestMapping(value = "/create-game-again")
+    public @ResponseBody
+    PlayAgainGameResponse createGameAgain(@RequestParam Integer gameId,@RequestParam Integer player1,@RequestParam String username1, @RequestParam Integer player2, @RequestParam String username2) {
+        PlayAgainGameResponse playGameResponse = gameService. createGameAgain(gameId, player1, username1, player2, username2);
+        if  (playGameResponse != null) {
+            return playGameResponse;
+        }
+        else {
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND, "Game Not Found");
+        }
+    }
+
+
+    @RequestMapping(value = "/get-new-gameId")
+    public @ResponseBody
+    PlayAgainGameResponse getNewGameId(@RequestParam Integer gameId,@RequestParam Integer userId) {
+        PlayAgainGameResponse playGameResponse = gameService. getNewGameId(gameId, userId);
+        if  (playGameResponse != null) {
+            return playGameResponse;
+        }
+        else {
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND, "Game Not Found");
+        }
+    }
+
 }
 
 

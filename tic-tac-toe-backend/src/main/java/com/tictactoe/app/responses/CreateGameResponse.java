@@ -4,14 +4,16 @@ public class CreateGameResponse {
     private int gameId,userId;
     private String username,status;
     private String username1;
+    private Integer opponent;
     private String username2;
 
-    public CreateGameResponse(int gameId, int userId, String username, String status, String username1, String username2) {
+    public CreateGameResponse(int gameId, int userId, String username, String status, String username1, Integer opponent,String username2) {
         this.gameId = gameId;
         this.userId = userId;
         this.username = username;
         this.status = status;
         this.username1 = username1;
+        this.opponent = opponent;
         this.username2 = username2;
     }
 
@@ -53,6 +55,14 @@ public class CreateGameResponse {
 
     public void setUsername1(String username1) {
         this.username1 = username1;
+    }
+
+    public Integer getOpponent() {
+        return opponent;
+    }
+
+    public void setOpponent(Integer opponent) {
+        this.opponent = opponent;
     }
 
     public String getUsername2() {

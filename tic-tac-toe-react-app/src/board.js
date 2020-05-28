@@ -5,6 +5,15 @@ import { bool } from 'prop-types';
 import Square from './square.js';
 import './index.css';
 
+// function add(a,b){
+//     return a+b;
+// }
+
+// add = (a,b) => {
+//     return a+b;
+// }
+
+
 class Board extends React.Component {
     constructor(props) {
         super(props);
@@ -12,7 +21,9 @@ class Board extends React.Component {
             squares: Array(9).fill(null),
             next: this.props.next,
             nextValue: 'X',
+            game_id: this.props.game_id,
             user_id: this.props.user_id,
+            username: this.props.username,
             player1: this.props.player1,
             player2: this.props.player2,
             user_name1: this.props.user_name1,
@@ -58,7 +69,7 @@ class Board extends React.Component {
                 headers: {
                     "Content-type": "application/x-www-form-urlencoded; charset=UTF-8"
                 },
-                body: 'game_id=' + this.props.game_id + '&winner=' + winner + '&status='
+                body: 'game_id=' + this.state.game_id + '&winner=' + winner + '&status='
                     + gamestate + '&cur_state=' + squares[i] + '&position=' + i + '&user_id=' + this.props.user_id
                     + '&next=' + this.props.user_name
             })
@@ -71,7 +82,7 @@ class Board extends React.Component {
                 .catch(function (error) {
                     console.log(error);
                 });
-
+            this.waitForPlayAgain();
         }
 
         else {
@@ -80,7 +91,7 @@ class Board extends React.Component {
                 headers: {
                     "Content-type": "application/x-www-form-urlencoded; charset=UTF-8"
                 },
-                body: 'cur_state=' + squares[i] + '&position=' + i + '&game_id=' + this.props.game_id + '&user_id=' + this.props.user_id + '&next=' + this.props.user_name
+                body: 'cur_state=' + squares[i] + '&position=' + i + '&game_id=' + this.state.game_id + '&user_id=' + this.props.user_id + '&next=' + this.props.user_name
 
             });
 
@@ -98,8 +109,8 @@ class Board extends React.Component {
 
     waitForNextPlayer() {
         let repeatRequest = setInterval(() => {
-            let whoNextPromise = fetch("/whoNext?game_id=" + this.props.game_id);
-            whoNextPromise.then((response) => response.json())
+            let whoNextPromise = fetch("/whoNext?game_id=" + this.state.game_id);
+            whoNextPromise.then(function(abcd) {return abcd.json()})
                 .then(jsonResponse => {
                     console.log(jsonResponse);
                     // if(this.state.isFinished){
@@ -113,7 +124,7 @@ class Board extends React.Component {
                             squares: squares,
                             isFinished: true
                         });
-
+                        this.waitForPlayAgain();
                     }
                     else {
                         if (jsonResponse.next == this.props.user_id) {
@@ -150,6 +161,204 @@ class Board extends React.Component {
         }, 2000);
     }
 
+
+    waitForPlayAgain() {
+        let repeatRequest = setInterval(() => {
+            let playAgain = fetch("/check-for-play-again?gameId=" + this.state.game_id + "&userId=" + this.state.user_id);
+            playAgain.then((response) => response.text()).then(gameStatus=> {
+                // let gameStatus =response.text();
+                    console.log(gameStatus);
+
+                    if (this.state.user_id == this.state.player1 && gameStatus === 'First player wants to play again') {
+                        clearInterval(repeatRequest);
+                        this.checkResponseToMyRequest();
+                    }
+                    else if (this.state.user_id == this.state.player1 && gameStatus === 'Second player wants to play again') {
+                        clearInterval(repeatRequest);
+                        this.sendMyResponse();
+                    }
+                    else if (this.state.user_id == this.state.player2 && gameStatus === 'Second player wants to play again') {
+                        clearInterval(repeatRequest);
+                        this.checkResponseToMyRequest();
+
+                    }
+                    else if (this.state.user_id == this.state.player2 && gameStatus === 'First player wants to play again') {
+                        clearInterval(repeatRequest);
+                        this.sendMyResponse();
+                    }
+
+                })
+                .catch(function (error) {
+                    // alert('Cloud not start game');
+                    console.log(error);
+                });
+        }, 2000);
+    }
+
+
+    handlePlayAgain() {
+        let playAgainPromise = fetch("/play-again-request", {
+            method: 'post',
+            headers: {
+                "Content-type": "application/x-www-form-urlencoded; charset=UTF-8"
+            },
+            body: 'gameId=' + this.state.game_id + '&userId=' + this.state.user_id
+        });
+
+        playAgainPromise.then((response) => {
+            console.log(response);
+        })
+            .catch(function (error) {
+                console.log(error);
+            });
+
+    }
+
+    sendMyResponse() {
+        let myResponse = window.confirm("Want to play again?");
+        if (myResponse == true) {
+                // this.requsetNewGameId();
+                this.creatGameAgain();
+            }
+            else {
+                window.location = window.location.href;
+                let addPromise = fetch("/my-response-to-play-again-request", {
+                        method: 'post',
+                        headers: {
+                            "Content-type": "application/x-www-form-urlencoded; charset=UTF-8"
+                        },
+                        body: 'myResponse=' + myResponse + '&gameId=' + this.state.game_id
+            
+                    });
+            
+                    addPromise.then((response) => {
+                        console.log(response);
+                    })
+                        .catch(function (error) {
+                            console.log(error);
+                        });
+            }
+    }
+
+        // let addPromise = fetch("/my-response-to-play-again-request", {
+        //     method: 'post',
+        //     headers: {
+        //         "Content-type": "application/x-www-form-urlencoded; charset=UTF-8"
+        //     },
+        //     body: 'myResponse=' + myResponse + '&gameId=' + this.state.game_id
+
+        // });
+
+        // addPromise.then((response) => {
+        //     console.log(response);
+        // })
+        //     .catch(function (error) {
+        //         console.log(error);
+        //     });
+        // if (myResponse == true) {
+        //     this.requsetNewGameId();
+        // }
+        // else {
+        //     window.location = window.location.href;
+        // }
+
+
+  
+
+    creatGameAgain() {
+        let createGamePromise;
+        if (this.state.user_id === this.state.player1) {
+            createGamePromise = fetch("/create-game-again?gameId=" + this.state.game_id + "&player1=" + this.state.player2 + "&username1=" + this.state.user_name2 + "&player2=" + this.state.user_id + "&username2=" + this.state.user_name1);
+           
+        }
+        else if (this.state.user_id === this.state.player2) {
+            createGamePromise = fetch("/create-game-again?gameId=" + this.state.game_id + "&player1=" + this.state.player1 + "&username1=" + this.state.user_name1 + "&player2=" + this.state.user_id + "&username2=" + this.state.user_name2);
+        }
+        createGamePromise.then((response) => response.json())
+            .then(jsonResponse => {
+                console.log(jsonResponse);
+
+                this.setState({
+                    squares: Array(9).fill(null),
+                    game_id: jsonResponse.gameId,
+                    // user_id: this.state.user_id,
+                    // username: this.state.username,
+                    // next: jsonResponse.next,
+                    // nextValue: 'O',
+                    // player1: jsonResponse.firstPlayer,
+                    // player2: jsonResponse.secondPlayer,
+                    // user_name1: jsonResponse.username1,
+                    // user_name2: jsonResponse.username2,
+                    isFinished: false
+
+                });
+                 this.waitForNextPlayer(jsonResponse.gameId);
+
+
+            })
+            .catch(function (error) {
+                alert('Cloud not start game');
+                console.log(error);
+            });
+    }
+
+
+
+    requestNewGameId() {
+        let requestNewGameId = fetch("/get-new-gameId?gameId=" + this.state.game_id + "&userId=" + this.state.user_id);
+        requestNewGameId.then((response) => response.json())
+            .then(jsonResponse => {
+                console.log(jsonResponse);
+
+                this.setState({
+                    squares: Array(9).fill(null),
+                    game_id: jsonResponse.gameId,
+                    // user_id: this.state.user_id,
+                    // username: this.state.username,
+                    next: jsonResponse.next,
+                    nextValue: 'X',
+                    player1: jsonResponse.firstPlayer,
+                    player2: jsonResponse.secondPlayer,
+                    user_name1: jsonResponse.username1,
+                    user_name2: jsonResponse.username2,
+                    isFinished: false
+
+                });
+
+            })
+            .catch(function (error) {
+                alert('Cloud not start game');
+                console.log(error);
+            });
+    }
+
+    checkResponseToMyRequest() {
+        let repeatRequest = setInterval(() => {
+            let checkResponse = fetch("/check-response-to-play-again-request?gameId=" + this.state.game_id);
+            checkResponse.then((response) => response.text()).then(gameStatus=> {
+                // let gameStatus =response.text();
+                    console.log(gameStatus);
+                    if (gameStatus == 'Yes') {
+                        clearInterval(repeatRequest);
+                         this.requestNewGameId() ;
+                        // set state
+                    }
+                    else if (gameStatus == 'No') {
+                        clearInterval(repeatRequest);
+                        window.location = window.location.href;
+
+                    }
+
+                })
+                .catch(function (error) {
+                    // alert('Cloud not start game');
+                    console.log(error);
+                });
+        }, 2000);
+    }
+
+
+
     renderSquare(i) {
         return <Square
             value={this.state.squares[i]
@@ -157,53 +366,6 @@ class Board extends React.Component {
             onClick={() => this.handleClick(i)}
         />;
     }
-
-    // handlePlayAgain() {
-        
-    //         let createGamePromise = fetch("/play-game-with-friend?username=" + this.state.user_name + "&gameId=" + value);
-
-    //         createGamePromise.then((response) => response.json())
-    //             .then(jsonResponse => {
-    //                 console.log(jsonResponse);
-    //                 if (jsonResponse.status === 'WaitingForFriend') {
-    //                     this.setState({
-    //                         page: 4,
-    //                         game_id: jsonResponse.gameId,
-    //                         user_id: jsonResponse.userId,
-    //                         player1: jsonResponse.userId,
-    //                         user_name1: jsonResponse.username1,
-    //                         user_name2: jsonResponse.username2
-    //                     });
-    //                     this.waitForGaneStart(jsonResponse.gameId);
-    //                 }
-
-    //                 else if (jsonResponse.status === 'Started') {
-    //                     this.setState({
-    //                         page: 2,
-    //                         game_id: jsonResponse.gameId,
-    //                         // player1: jsonResponse.firstPlayer,
-    //                         user_id: jsonResponse.userId,
-    //                         //next: jsonResponse.firstPlayer,
-    //                         //user_name: jsonResponse.secondUsername,
-    //                         user_name1: jsonResponse.username1,
-    //                         user_name2: jsonResponse.username2,
-    //                         player2: jsonResponse.userId,
-    //                     });
-    //                 }
-    //                 else {
-    //                     alert('Game not found');
-    //                 }
-    //             })
-    //             .catch(function (error) {
-    //                 alert('Cloud not start game');
-    //                 console.log(error);
-    //             });
-    //     }
-    //     else {
-    //         alert('Please enter username');
-    //     }
-
-    // }
 
     render() {
         const winner = calculateWinner(this.state.squares);
@@ -227,7 +389,7 @@ class Board extends React.Component {
         }
 
         return (
-            <div  className="play">
+            <div className="play">
                 {status}
                 {/* <div className="status">{status}</div> */}
                 <table>
@@ -250,7 +412,7 @@ class Board extends React.Component {
                     </tbody>
                 </table>
 
-               {(this.state.isFinished) && <Button href={window.location.href} variant="primary" style={{ width: '210px', marginTop: '1em'  }} size="lg">Play Again</Button> } 
+                {(this.state.isFinished) && <Button variant="primary" style={{ width: '210px', marginTop: '1em' }} size="lg" onClick={this.handlePlayAgain.bind(this)}>Play Again</Button>}
             </div>
         );
     };

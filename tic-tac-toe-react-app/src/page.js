@@ -32,7 +32,7 @@ class Page extends React.Component {
         };
     }
 
-    waitForGaneStart(gameId) {
+    waitForGameStart(gameId) {
         let repeatedRequest = setInterval(() => {
             let creatIsStartProimse = fetch("/start-response?game_id=" + gameId);
             creatIsStartProimse.then((response) => response.json())
@@ -84,19 +84,20 @@ class Page extends React.Component {
                             user_name1: jsonResponse.username1,
                             user_name2: jsonResponse.username2
                         });
-                        this.waitForGaneStart(jsonResponse.gameId);
+                        this.waitForGameStart(jsonResponse.gameId);
                     }
 
                     else if (jsonResponse.status === 'Started') {
                         this.setState({
                             page: 2,
                             game_id: jsonResponse.gameId,
-                            // player1: jsonResponse.firstPlayer,
+                           // player1: jsonResponse.firstPlayer,
                             user_id: jsonResponse.userId,
                             //next: jsonResponse.firstPlayer,
                             //user_name: jsonResponse.secondUsername,
                             user_name1: jsonResponse.username1,
                             user_name2: jsonResponse.username2,
+                            player1: jsonResponse.opponent,
                             player2: jsonResponse.userId,
                         });
                     }
@@ -128,10 +129,11 @@ class Page extends React.Component {
                             game_id: jsonResponse.gameId,
                             user_id: jsonResponse.userId,
                             player1: jsonResponse.userId,
+                            
                             user_name1: jsonResponse.username1,
                             user_name2: jsonResponse.username2
                         });
-                        this.waitForGaneStart(jsonResponse.gameId);
+                        this.waitForGameStart(jsonResponse.gameId);
                     }
                     else {
                         this.setState({
@@ -140,6 +142,7 @@ class Page extends React.Component {
                             user_id: jsonResponse.userId,
                             user_name1: jsonResponse.username1,
                             user_name2: jsonResponse.username2,
+                            player1: jsonResponse.opponent,
                             player2: jsonResponse.userId,
                         });
                     }
@@ -221,7 +224,7 @@ class Page extends React.Component {
                                         </Badge>{' '}
                                 </h1>
                                 <div style={{ marginTop: '1em' }}>
-                                    <Game game_id={this.state.game_id} user_id={this.state.user_id} next={this.state.next} player1={this.state.player1} player2={this.state.player2} user_name1={this.state.user_name1} user_name2={this.state.user_name2} />
+                                    <Game game_id={this.state.game_id} user_id={this.state.user_id} next={this.state.next} player1={this.state.player1} player2={this.state.player2}  user_name={this.state.user_name} user_name1={this.state.user_name1} user_name2={this.state.user_name2} />
                                 </div>
                             </Col>
                         </Row>
