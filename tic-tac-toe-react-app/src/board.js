@@ -345,6 +345,7 @@ class Board extends React.Component {
                 }
                 else if (gameStatus == 'No') {
                     clearInterval(repeatRequest);
+                    alert('Play Again request denied');
                     window.location = window.location.href;
 
                 }
