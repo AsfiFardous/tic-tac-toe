@@ -3,6 +3,8 @@
 The app has been developed with spring boot and React.Js framework.
 The app allows to play with random player or with a friend.
 
+**Play here: http://tictactoe.asfi.me/**
+
 ## Requirements
 * Java 8
 * Maven
